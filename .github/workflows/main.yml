@@ -23,7 +23,7 @@ jobs:
         env:
           BDUSS: ${{ secrets.BDUSS }}
           HOST: ${{ secrets.HOST }}
-          FROM: ${{ secrets.FROM }}
-          TO: ${{ secrets.TO }}
-          AUTH: ${{ secrets.AUTH }}
+          FROM: ${{ secrets.GMAIL_USERNAME }}
+          TO: ${{ secrets.TO_EMAIL }}
+          AUTH: ${{ secrets.GMAIL_APP_PASSWORD }}
         run: python main.py
