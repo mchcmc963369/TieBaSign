@@ -205,8 +205,8 @@ def send_email(sign_list):
         """
     msg = MIMEText(body, 'html', 'utf-8')
     msg['subject'] = subject
-    smtp = smtplib.SMTP('smtp.gmail.com', 587)
-    # smtp.connect(HOST)
+    # smtp = smtplib.SMTP('smtp.gmail.com', 587)
+    smtp.connect(HOST)
     smtp.login(FROM, AUTH)
     smtp.sendmail(FROM, TO, msg.as_string())
     smtp.quit()
@@ -224,7 +224,7 @@ def main():
             time.sleep(random.randint(1,5))
             client_sign(i, tbs, j["id"], j["name"])
         logger.info("完成第" + str(n) + "个用户签到")
-    send_email(favorites)
+    # send_email(favorites)
     logger.info("所有用户签到结束")
 
 
