@@ -177,10 +177,10 @@ def send_email(sign_list):
     if ('HOST' not in ENV or 'FROM' not in ENV or 'TO' not in ENV or 'AUTH' not in ENV):
         logger.error("未配置邮箱")
         return
-    HOST = ENV['HOST']
-    FROM = ENV['FROM']
-    TO = ENV['TO'].split('#')
-    AUTH = ENV['AUTH']
+    # HOST = ENV['HOST']
+    FROM = ENV['GMAIL_USERNAME']
+    TO = ENV['TO_EMAIL'].split('#')
+    AUTH = ENV['GMAIL_APP_PASSWORD']
     length = len(sign_list)
     subject = f"{time.strftime('%Y-%m-%d', time.localtime())} 签到{length}个贴吧"
     body = """
@@ -205,8 +205,8 @@ def send_email(sign_list):
         """
     msg = MIMEText(body, 'html', 'utf-8')
     msg['subject'] = subject
-    smtp = smtplib.SMTP()
-    smtp.connect(HOST)
+    smtp = smtplib.SMTP('smtp.gmail.com', 587)
+    # smtp.connect(HOST)
     smtp.login(FROM, AUTH)
     smtp.sendmail(FROM, TO, msg.as_string())
     smtp.quit()
