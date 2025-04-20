@@ -164,14 +164,51 @@ def encodeData(data):
     return data
 
 
+# def client_sign(bduss, tbs, fid, kw):
+#     # 客户端签到
+#     logger.info("开始签到贴吧：" + kw)
+#     data = copy.copy(SIGN_DATA)
+#     data.update({BDUSS: bduss, FID: fid, KW: kw, TBS: tbs, TIMESTAMP: str(int(time.time()))})
+#     data = encodeData(data)
+#     res = s.post(url=SIGN_URL, data=data, timeout=15).json()
+#     return res
+
 def client_sign(bduss, tbs, fid, kw):
-    # 客户端签到
-    logger.info("开始签到贴吧：" + kw)
-    data = copy.copy(SIGN_DATA)
-    data.update({BDUSS: bduss, FID: fid, KW: kw, TBS: tbs, TIMESTAMP: str(int(time.time()))})
-    data = encodeData(data)
-    res = s.post(url=SIGN_URL, data=data, timeout=15).json()
-    return res
+    """
+    客户端签到，失败后最多重试 9 次。
+    """
+    logger.info(f"开始签到贴吧：{kw}")
+    last_exception = None
+
+    for attempt in range(1, 10):  # 1 到 9 次尝试
+        try:
+            # 每次重试都重新构造参数并签名（因为 timestamp 会变化）
+            data = copy.copy(SIGN_DATA)
+            data.update({
+                BDUSS: bduss,
+                FID: fid,
+                KW: kw,
+                TBS: tbs,
+                TIMESTAMP: str(int(time.time()))
+            })
+            signed_data = encodeData(data)
+
+            resp = s.post(url=SIGN_URL, data=signed_data, timeout=15)
+            resp.raise_for_status()  # 如果 HTTP 状态码不是 200，会抛出异常
+            res_json = resp.json()
+
+            logger.info(f"第 {attempt} 次签到成功：贴吧[{kw}] 返回 {res_json}")
+            return res_json
+
+        except Exception as e:
+            last_exception = e
+            logger.warning(f"第 {attempt} 次签到失败：贴吧[{kw}]，错误：{e!r}")
+            # 可根据需要加上指数退避或固定延时
+            time.sleep(2)
+
+    # 如果所有重试都失败
+    logger.error(f"签到贴吧[{kw}]失败，已重试 9 次，放弃。最后一次错误：{last_exception!r}")
+    return None
 
 def send_email(sign_list):
     if ('HOST' not in ENV or 'FROM' not in ENV or 'TO' not in ENV or 'AUTH' not in ENV):
