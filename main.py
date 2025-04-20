@@ -194,6 +194,7 @@ def client_sign(bduss, tbs, fid, kw):
             signed_data = encodeData(data)
 
             resp = s.post(url=SIGN_URL, data=signed_data, timeout=15)
+            logger.debug(f"HTTP {resp.status_code}, body: {resp.text!r}")
             resp.raise_for_status()  # 如果 HTTP 状态码不是 200，会抛出异常
             res_json = resp.json()
 
@@ -204,7 +205,7 @@ def client_sign(bduss, tbs, fid, kw):
             last_exception = e
             logger.warning(f"第 {attempt} 次签到失败：贴吧[{kw}]，错误：{e!r}")
             # 可根据需要加上指数退避或固定延时
-            time.sleep(2)
+            time.sleep(9)
 
     # 如果所有重试都失败
     logger.error(f"签到贴吧[{kw}]失败，已重试 9 次，放弃。最后一次错误：{last_exception!r}")
